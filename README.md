@@ -63,5 +63,4 @@ Her üreticinin donanım modeline göre (RAM ve CPU kapasitesi) dışarıdan ala
 - **Palo Alto:** Giriş seviyesi modellerde toplam ~50.000 satır limiti vardır (`show system state | match max-edl` komutuyla kontrol edilebilir).
 - **FortiGate:** Cihaz modeline göre (Örn: 60F, 100F, 200F) External Block List (EBL) limitleri 100.000 ila milyonlarca kayıt arasında değişir. Cihaz limitlerinizi aşmamaya özen gösterin.
 
-## ⚖️ Lisans
-Bu proje [MIT Lisansı](LICENSE) altında açık kaynak olarak sunulmuştur. Ticari veya bireysel olarak serbestçe değiştirilebilir ve kullanılabilir.
+

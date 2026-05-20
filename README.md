@@ -2,21 +2,21 @@
 
 [![USOM-API-Converter](https://github.com/beratcemzengin/USOM-API-Converter/actions/workflows/usom_job.yml/badge.svg)](https://github.com/beratcemzengin/USOM-API-Converter/actions/workflows/usom_job.yml)
 
-> 💡 **Hızlı Kullanım (Hazır Liste):**
-> Kendi GitHub altyapınızı kurmakla uğraşmak istemiyorsanız, bu deponun her gün otomatik ürettiği güncel listeleri doğrudan kullanabilirsiniz:
+> 💡 **Hızlı Kullanım (Hazır Listeler):**
+> Kendi GitHub altyapınızı kurmakla uğraşmak istemiyorsanız, bu deponun her gün otomatik ürettiği güncel listeleri doğrudan Firewall cihazlarınıza tanımlayabilirsiniz:
 > 
 > - 🔗 **IP Listesi:** `https://raw.githubusercontent.com/beratcemzengin/USOM-API-Converter/main/usom_ip.txt`
 > - 🔗 **Domain Listesi:** `https://raw.githubusercontent.com/beratcemzengin/USOM-API-Converter/main/usom_domain.txt`
 
 ---
 
-Siber Güvenlik Başkanlığı'nın (SGB) yeni API servisleri üzerinden sunduğu tehdit beslemesini, kurumsal güvenlik duvarlarının (Firewall - Palo Alto, FortiGate, Cisco vb.) doğrudan tüketebileceği formata dönüştüren otomatik bir projedir.
+Siber Güvenlik Başkanlığı'nın (SGB) API servisleri üzerinden sunduğu tehdit beslemesini; kurumsal güvenlik duvarlarının (Palo Alto, FortiGate, Cisco vb.) doğrudan tüketebileceği optimize edilmiş formatta sunan otomasyon projesidir.
 
 ## 🌟 Neler Yeni?
 * **Segmentasyon:** Tehditler artık IP (L3/L4) ve Domain (L7) olarak iki ayrı dosyada sunulur.
 * **Yüksek Hız:** `per-page=1000` parametresi ile tüm veritabanı saniyeler içinde taranır.
-* **Akıllı Filtreleme:** Cihaz limitlerini (RAM/TCAM) korumak için sadece **son 1 yılın** aktif tehditleri baz alınır.
-* **Otomasyon:** GitHub Actions üzerinde serverless altyapıda, her gün otomatik güncellenir.
+* **Akıllı Filtreleme:** Cihazlarınızı yormamak için sadece **son 1 yılın** aktif tehditleri baz alınır.
+* **Tam Otomasyon:** GitHub Actions üzerinde serverless altyapıda, her gün otomatik güncellenir.
 
 ---
 
@@ -36,17 +36,25 @@ Siber Güvenlik Başkanlığı'nın (SGB) yeni API servisleri üzerinden sunduğ
 ---
 
 ## 🛠️ Kendi Altyapınıza Kurmak İsterseniz
-1. Depoyu **Fork** edin.
-2. **Settings > Actions > General** menüsünden **Workflow permissions** kısmını **"Read and write permissions"** olarak işaretleyip kaydedin.
-3. **Actions** sekmesinden `Run workflow` diyerek sistemi manuel tetikleyin; sistem artık her sabah otomatik çalışacaktır.
+
+### 1. Depoyu Fork Edin
+1. Deponun sağ üst köşesindeki **"Fork"** butonuna tıklayın.
+2. **"Create fork"** butonuna basarak projeyi kendi profilinize kopyalayın. Artık `KullanıcıAdınız/USOM-API-Converter` adresinde projenin kendi kopyanız üzerinde tam yetkilisiniz.
+
+
+### 2. GitHub Actions İzinlerini Yapılandırın
+Deponun güncel dosyaları kaydedebilmesi (push atabilmesi) için yazma izni vermeniz gerekir:
+1. Deponuzda **Settings > Actions > General** sekmesine gidin.
+2. En aşağıya inin, **Workflow permissions** kısmında **"Read and write permissions"** seçeneğini işaretleyip **Save** deyin.
+
+### 3. Otomasyonu Başlatın
+1. Deponuzun üst menüsündeki **Actions** sekmesine tıklayın.
+2. İş akışını seçip **"Run workflow"** butonuna basarak manuel tetikleyin.
+3. İşlem bittiğinde `usom_ip.txt` ve `usom_domain.txt` dosyalarının deponuzda oluştuğunu göreceksiniz. Artık sistem her gün otomatik olarak çalışacaktır.
 
 ---
 
 ## 📊 Teknik Detaylar
-* **Limit Kontrolü:** 1 yıllık filtreleme, cihazlarınızın hafıza limitlerini aşmadan sadece "taze" tehditlere odaklanmanızı sağlar.
-* **Güncelleme:** Script her gün `03:00 UTC` (Türkiye saatiyle 06:00) saatinde tetiklenir.
+* **Limit Kontrolü:** 1 yıllık filtreleme, cihazlarınızın hafıza limitlerini (RAM/TCAM) aşmadan sadece "taze" tehditlere odaklanmanızı sağlar.
+* **Güncelleme:** Script her gün Türkiye saatiyle 06:00'da tetiklenir.
 * **Lisans:** [MIT](LICENSE)
-
----
-
-### 

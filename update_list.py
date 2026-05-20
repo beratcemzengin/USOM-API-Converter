@@ -1,92 +1,65 @@
 import requests
 import time
 import urllib3
+import re
 from datetime import datetime, timedelta
 
-# SSL uyarılarını gizlemek için
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+# IP adresi olup olmadığını anlayan basit bir regex
+def is_ip(address):
+    # IPv4 veya IPv6 kontrolü
+    return bool(re.match(r'^(?:\d{1,3}\.){3}\d{1,3}$|^([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$', address))
 
 def main():
     base_url = "https://www.usom.gov.tr/api/address/index"
-    all_addresses = []
+    ips = []
+    domains = []
     
-    # Bugünün tarihinden 365 gün (1 yıl) öncesini hesapla
     one_year_ago = (datetime.now() - timedelta(days=365)).strftime('%Y-%m-%d')
     
-    print("USOM API bağlantısı kuruluyor... 🚀")
-    print(f"FİLTRE AKTİF: {one_year_ago} tarihinden sonraki tehditler çekilecek.")
-    print("OPTİMİZASYON: 'per-page=1000' kullanılarak yüksek hızda veri toplanacak.")
+    print("Veriler çekiliyor ve ayrıştırılıyor... 🚀")
     
     page = 1
-    retry_count = 0
-    
-    # Sayfa sayısını önceden sormamıza gerek kalmadı, 1000'er 1000'er çekeceğimiz için 
-    # gelen veri 1000'in altına düştüğünde son sayfada olduğumuzu anlayacağız.
     while True:
         try:
-            # İşte sihirli parametrelerin birleşimi
-            params = {
-                'page': page,
-                'per-page': 1000, 
-                'date_gte': one_year_ago
-            }
-            
+            params = {'page': page, 'per-page': 1000, 'date_gte': one_year_ago}
             response = requests.get(base_url, params=params, timeout=20, verify=False)
             
             if response.status_code == 200:
                 data = response.json()
                 models = data.get('models', [])
                 
-                if not models:
-                    print("Veritabanının sonuna ulaşıldı.")
-                    break 
+                if not models: break
                     
                 for item in models:
-                    addr = item.get('url') 
+                    addr = item.get('url')
                     if addr:
-                        all_addresses.append(addr.strip())
-                        
-                print(f"Sayfa {page} başarıyla çekildi ({len(models)} kayıt). Toplam toplanan: {len(all_addresses)}")
+                        addr = addr.strip()
+                        # IP mi Domain mi?
+                        if is_ip(addr):
+                            ips.append(addr)
+                        else:
+                            domains.append(addr)
                 
-                # Eğer dönen kayıt sayısı 1000'den azsa, USOM'daki son sayfaya gelmişiz demektir!
-                if len(models) < 1000:
-                    print("Tüm güncel veriler başarıyla alındı.")
-                    break
-                
-                # Başarılı olunca bir sonraki sayfaya geç
+                print(f"Sayfa {page} işlendi. Toplam: {len(ips)} IP, {len(domains)} Domain.")
+                if len(models) < 1000: break
                 page += 1
-                retry_count = 0 
-                # WAF'ı hiç uyandırmamak için saniyede sadece 1 istek (1 rps) atıyoruz
-                time.sleep(1.0) 
-                
-            # WAF Bizi Engellerse (Artık çok düşük bir ihtimal ama güvenlik ağı olarak kalmalı)
-            elif response.status_code == 429:
-                retry_count += 1
-                if retry_count > 3:
-                    print("Üst üste 3 kez 429 hatası alındı. Güvenlik için işlem sonlandırılıyor.")
-                    break
-                
-                print(f"[UYARI] USOM WAF Engeli (HTTP 429) - 15 saniye dinleniliyor...")
-                time.sleep(15) 
-                
+                time.sleep(1.0)
             else:
-                print(f"Sayfa {page} alınamadı. HTTP Status: {response.status_code}")
                 break
-                
         except Exception as e:
-            print(f"{page}. sayfa işlenirken hata oluştu: {e}")
+            print(f"Hata: {e}")
             break
 
-    # Mükerrer kayıtları temizle ve Palo Alto'nun sevdiği gibi alfabetik sırala
-    clean_addresses = sorted(list(set(all_addresses)))
-    
-    if clean_addresses:
-        with open("usom_list.txt", "w", encoding="utf-8") as f:
-            for address in clean_addresses:
-                f.write(f"{address}\n")
-        print(f"\n[BAŞARILI] İşlem 1 dakikadan kısa sürede bitti! Toplam {len(clean_addresses)} güncel adres kaydedildi.")
-    else:
-        print("\n[HATA] Liste doldurulamadı.")
+    # Dosyalara yaz
+    with open("usom_ip.txt", "w", encoding="utf-8") as f:
+        f.write("\n".join(sorted(list(set(ips)))))
+        
+    with open("usom_domain.txt", "w", encoding="utf-8") as f:
+        f.write("\n".join(sorted(list(set(domains)))))
+        
+    print(f"\n[BAŞARILI] usom_ip.txt ve usom_domain.txt oluşturuldu.")
 
 if __name__ == "__main__":
     main()

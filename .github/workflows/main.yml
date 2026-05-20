@@ -1,0 +1,36 @@
+name: USOM API to Palo Alto EDL Converter
+
+on:
+  schedule:
+    # Her saat başı otomatik çalışması için cron tanımı
+    - cron: '0 * * * *'
+  workflow_dispatch: # Manuel olarak da tetiklemek isterseniz buton çıkartır
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # GitHub'ın dosyayı güncelleyip kaydedebilmesi için şart
+
+    steps:
+    - name: Depoyu Klonla
+      uses: actions/checkout@v4
+
+    - name: Python Kurulumu
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.x'
+
+    - name: Kütüphaneleri Yükle
+      run: pip install requests
+
+    - name: Scripti Çalıştır ve Listeyi Güncelle
+      run: python update_list.py
+
+    - name: Değişiklikleri GitHub'a Geri Yükle (Commit & Push)
+      run: |
+        git config --global user.name "GitHub Action"
+        git config --global user.email "action@github.com"
+        git add usom_list.txt
+        # Eğer değişiklik yoksa hata vermemesi için kontrol ekliyoruz
+        git diff --quiet && git diff --staged --quiet || (git commit -m "Güncel USOM Listesi - $(date)" && git push)

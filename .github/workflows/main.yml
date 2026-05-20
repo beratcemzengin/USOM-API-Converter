@@ -3,7 +3,7 @@ name: USOM API to Palo Alto EDL Converter
 on:
   schedule:
     # Her saat başı otomatik çalışması için cron tanımı
-    - cron: '0 * * * *'
+    - cron: '0 3 * * *'
   workflow_dispatch: # Manuel olarak da tetiklemek isterseniz buton çıkartır
 
 jobs:

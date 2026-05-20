@@ -1,4 +1,4 @@
-# USOM API to Palo Alto Networks EDL Converter 🛡️🚀
+🛡️🚀USOM API to Palo Alto Networks EDL Converter 🛡️🚀
 
 [![USOM API to Palo Alto EDL Converter](https://github.com/KULLANICI_ADINIZ/REPO_ADINIZ/actions/workflows/usom_job.yml/badge.svg)](https://github.com/KULLANICI_ADINIZ/REPO_ADINIZ/actions/workflows/usom_job.yml)
 

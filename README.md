@@ -2,72 +2,51 @@
 
 [![USOM-API-Converter](https://github.com/beratcemzengin/USOM-API-Converter/actions/workflows/usom_job.yml/badge.svg)](https://github.com/beratcemzengin/USOM-API-Converter/actions/workflows/usom_job.yml)
 
-> 💡 **Hızlı Kullanım (Doğrudan Benim Listemi Kullanmak İsterseniz):**
-> Kendi GitHub Actions altyapınızı kurmakla uğraşmak istemiyorsanız, doğrudan bu deponun ürettiği hazır listeyi kullanabilirsiniz. Aşağıdaki link, USOM API'sine bağlanarak **günde 1 defa otomatik bir job ile yenilenmektedir** ve tüm firewall cihazlarına (FortiGate, Palo Alto, Cisco vb.) doğrudan eklenebilir:
+> 💡 **Hızlı Kullanım (Hazır Liste):**
+> Kendi GitHub altyapınızı kurmakla uğraşmak istemiyorsanız, bu deponun her gün otomatik ürettiği güncel listeleri doğrudan kullanabilirsiniz:
 > 
-> 🔗 **Güncel TXT Linki:** `https://raw.githubusercontent.com/beratcemzengin/USOM-API-Converter/main/usom_list.txt`
+> - 🔗 **IP Listesi:** `https://raw.githubusercontent.com/beratcemzengin/USOM-API-Converter/main/usom_ip.txt`
+> - 🔗 **Domain Listesi:** `https://raw.githubusercontent.com/beratcemzengin/USOM-API-Converter/main/usom_domain.txt`
 
 ---
 
-Siber Güvenlik Başkanlığı'nın 177 sayılı Cumhurbaşkanlığı Kararnamesi ve 7545 sayılı Siber Güvenlik Kanunu uyarınca yaptığı duyuru doğrultusunda, **1 Haziran 2026** tarihi itibariyle USOM üzerindeki eski `.txt` formatındaki zararlı bağlantı listesi paylaşımları sona ermektedir. Veri erişim süreçleri tamamen yeni API servisleri (`www.siberguvenlik.gov.tr`) üzerinden yürütülecektir.
+Siber Güvenlik Başkanlığı'nın (SGB) yeni API servisleri üzerinden sunduğu tehdit beslemesini, kurumsal güvenlik duvarlarının (Firewall - Palo Alto, FortiGate, Cisco vb.) doğrudan tüketebileceği formata dönüştüren otomatik bir projedir.
 
-Piyasada yaygın olarak kullanılan **Fortinet (FortiGate), Palo Alto Networks, Cisco ve Check Point** gibi kurumsal güvenlik duvarları (Firewall), ham JSON formatındaki API çıktılarını External Dynamic List (Harici Dinamik Liste) olarak doğrudan işleyememektedir. Bu proje, **GitHub Actions** kullanarak USOM API'sindeki zararlı adresleri her gün otomatik olarak çeker, ayrıştırır ve tüm güvenlik duvarlarının kolayca okuyabileceği standart düz metin (`.txt`) formatına dönüştürür.
-
-## 🌟 Avantajları
-- **Sıfır Altyapı Maliyeti:** Kurum içinde ek bir Linux sunucu, script veya cron job barındırmanıza gerek kalmaz. Süreç tamamen GitHub'ın sunucusuz (serverless) altyapısında döner.
-- **Otomatik Güncelleme:** GitHub Actions belirlediğiniz periyotlarda (örn. günde bir kez) tetiklenerek listenin her zaman güncel kalmasını sağlar.
-- **Evrensel Uyumluluk:** Üretilen `.txt` dosyası; FortiGate (Fabric Connectors), Palo Alto (EDL), Cisco (Security Intelligence) ve open-source (pfSense/OPNsense) sistemlerle %100 uyumludur.
-- **Yüksek Performans:** Güvenlik cihazlarınız karmaşık JSON ayrıştırma yüküyle uğraşmaz, doğrudan optimize edilmiş hafif bir text dosyasını okur.
-
----
-
-## 🛠️ Kendi Altyapınıza Kurmak İsterseniz (Opsiyonel)
-
-Sistemi kendi GitHub hesabınız üzerinden çalıştırmak isterseniz aşağıdaki adımları izleyebilirsiniz:
-
-### 1. Kendi Deponuzu Oluşturun (Fork)
-1. Bu depoyu sağ üstteki **Fork** butonuna basarak kendi GitHub hesabınıza kopyalayın.
-2. Deponuzun **Settings > Actions > General** menüsüne giderek **Workflow permissions** kısmını **"Read and write permissions"** olarak ayarlayın ve kaydedin.
-
-### 2. GitHub Actions'ı Tetikleyin
-- Deponuzun üst menüsündeki **Actions** sekmesine gelin.
-- Sol taraftan iş akışını seçip **Run workflow** butonuna basarak ilk çalıştırmayı manuel olarak başlatın.
-- İşlem tamamlandığında ana dizinde kendi `usom_list.txt` dosyanızın oluştuğunu göreceksiniz. Dosyaya tıklayıp **Raw** butonuna basarak kendi güncel linkinizi alabilirsiniz.
+## 🌟 Neler Yeni?
+* **Segmentasyon:** Tehditler artık IP (L3/L4) ve Domain (L7) olarak iki ayrı dosyada sunulur.
+* **Yüksek Hız:** `per-page=1000` parametresi ile tüm veritabanı saniyeler içinde taranır.
+* **Akıllı Filtreleme:** Cihaz limitlerini (RAM/TCAM) korumak için sadece **son 1 yılın** aktif tehditleri baz alınır.
+* **Otomasyon:** GitHub Actions üzerinde serverless altyapıda, her gün otomatik güncellenir.
 
 ---
 
 ## 🔗 Firewall Entegrasyon Rehberi
 
-*(Aşağıdaki adımlarda URL istenen yerlere, en üstte paylaşılan hazır linki veya kendi kopyaladığınız Raw linkini yapıştırabilirsiniz.)*
+### 🛡️ Palo Alto Networks (EDL)
+1. **Objects > External Dynamic Lists** yoluna gidin ve iki ayrı liste ekleyin.
+2. **IP Listesi:** `Type: IP List` seçin ve `usom_ip.txt` linkini girin.
+3. **Domain Listesi:** `Type: Domain List` seçin ve `usom_domain.txt` linkini girin.
+4. Güvenlik kurallarınızda bu nesneleri `Destination` (IP) ve `URL Category` (Domain) alanlarında `Drop/Block` aksiyonu ile tanımlayın.
 
-### 🛡️ Fortinet (FortiGate) Entegrasyonu
-1. FortiGate arayüzünde **Security Fabric > Fabric Connectors** (veya External Connectors) menüsüne gidin.
-2. **Create New** diyerek **Threat Feeds** altından **Domain Name** veya **IP Address** seçeneğini tıklayın.
-3. **Name:** `USOM_Zararli_Liste`
-4. **URL of external resource:** Kopyaladığınız Raw linkini yapıştırın.
-5. **Refresh Rate:** 1440 (Günlük) dakika olarak belirleyin ve kaydedin.
-6. **Policy & Objects > DNS Filter** (veya Web Filter) profillerinde bu listeyi `Block` olarak ayarlayın.
-
-### 🛡️ Palo Alto Networks Entegrasyonu
-1. Palo Alto Web Arayüzünde **Objects > External Dynamic Lists** yolunu izleyin ve **Add** deyin.
-2. **Name:** `USOM_Zarli_Baglantilar`
-3. **Type:** `URL List` veya `Domain List` seçin.
-4. **Source:** Kopyaladığınız Raw linkini yapıştırın.
-5. **Repeat:** `Daily` olarak ayarlayıp kaydedin.
-6. **Policies > Security** kuralınızda `Destination` olarak bu listeyi seçip `Drop/Block` aksiyonu verin.
-
-### 🛡️ Cisco (Firepower / FMC) Entegrasyonu
-1. FMC arayüzünde **Objects > Object Management** menüsüne gidin.
-2. **Security Intelligence > Network Lists and Feeds** sekmesini açıp **Add Network Feed** deyin.
-3. Kopyaladığınız listeyi URL üzerinden beslenecek şekilde tanımlayın.
-4. Access Control Policy (ACP) içindeki **Security Intelligence** tabında bu listeyi Block listesine sürükleyip bırakın.
+### 🛡️ Fortinet (FortiGate)
+1. **Security Fabric > Fabric Connectors > Threat Feeds** yoluna gidin.
+2. IP'ler için `IP Address`, Domain'ler için `Domain` tipinde iki ayrı connector oluşturun.
+3. RAW linklerini ekleyin ve `Refresh Rate` değerini `1440` (günlük) dakika olarak belirleyin.
 
 ---
 
-## 📊 Limitler ve Kontroller
-Her üreticinin donanım modeline göre dışarıdan alabileceği maksimum satır sayısı farklıdır:
-- **Palo Alto:** Giriş seviyesi modellerde toplam ~50.000 satır limiti vardır (`show system state | match max-edl` komutuyla kontrol edilebilir).
-- **FortiGate:** Cihaz modeline göre (Örn: 60F, 100F, 200F) External Block List (EBL) limitleri 100.000 ila milyonlarca kayıt arasında değişir. Cihaz limitlerinizi aşmamaya özen gösterin.
+## 🛠️ Kendi Altyapınıza Kurmak İsterseniz
+1. Depoyu **Fork** edin.
+2. **Settings > Actions > General** menüsünden **Workflow permissions** kısmını **"Read and write permissions"** olarak işaretleyip kaydedin.
+3. **Actions** sekmesinden `Run workflow` diyerek sistemi manuel tetikleyin; sistem artık her sabah otomatik çalışacaktır.
 
-## ⚖️ Lisans
-Bu proje [MIT Lisansı](LICENSE) altında açık kaynak olarak sunulmuştur. Ticari veya bireysel olarak serbestçe değiştirilebilir ve kullanılabilir.
+---
+
+## 📊 Teknik Detaylar
+* **Limit Kontrolü:** 1 yıllık filtreleme, cihazlarınızın hafıza limitlerini aşmadan sadece "taze" tehditlere odaklanmanızı sağlar.
+* **Güncelleme:** Script her gün `03:00 UTC` (Türkiye saatiyle 06:00) saatinde tetiklenir.
+* **Lisans:** [MIT](LICENSE)
+
+---
+
+### 

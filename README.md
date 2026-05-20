@@ -1,6 +1,13 @@
 # USOM-API-Converter (Firewall Tehdit İstihbaratı Otomasyonu) 🛡️🚀
 
-[![USOM-API-Converter](https://github.com/KULLANICI_ADINIZ/REPO_ADINIZ/actions/workflows/usom_job.yml/badge.svg)](https://github.com/KULLANICI_ADINIZ/REPO_ADINIZ/actions/workflows/usom_job.yml)
+[![USOM-API-Converter](https://github.com/beratcemzengin/USOM-API-Converter/actions/workflows/usom_job.yml/badge.svg)](https://github.com/beratcemzengin/USOM-API-Converter/actions/workflows/usom_job.yml)
+
+> 💡 **Hızlı Kullanım (Doğrudan Benim Listemi Kullanmak İsterseniz):**
+> Kendi GitHub Actions altyapınızı kurmakla uğraşmak istemiyorsanız, doğrudan bu deponun ürettiği hazır listeyi kullanabilirsiniz. Aşağıdaki link, USOM API'sine bağlanarak **günde 1 defa otomatik bir job ile yenilenmektedir** ve tüm firewall cihazlarına (FortiGate, Palo Alto, Cisco vb.) doğrudan eklenebilir:
+> 
+> 🔗 **Güncel TXT Linki:** `https://raw.githubusercontent.com/beratcemzengin/USOM-API-Converter/main/usom_list.txt`
+
+---
 
 Siber Güvenlik Başkanlığı'nın 177 sayılı Cumhurbaşkanlığı Kararnamesi ve 7545 sayılı Siber Güvenlik Kanunu uyarınca yaptığı duyuru doğrultusunda, **1 Haziran 2026** tarihi itibariyle USOM üzerindeki eski `.txt` formatındaki zararlı bağlantı listesi paylaşımları sona ermektedir. Veri erişim süreçleri tamamen yeni API servisleri (`www.siberguvenlik.gov.tr`) üzerinden yürütülecektir.
 
@@ -14,32 +21,31 @@ Piyasada yaygın olarak kullanılan **Fortinet (FortiGate), Palo Alto Networks, 
 
 ---
 
-## 🛠️ Kurulum ve Otomasyonun Devreye Alınması
+## 🛠️ Kendi Altyapınıza Kurmak İsterseniz (Opsiyonel)
 
-### 1. Kendi Deponuzu Oluşturun (Fork veya Şablon)
+Sistemi kendi GitHub hesabınız üzerinden çalıştırmak isterseniz aşağıdaki adımları izleyebilirsiniz:
+
+### 1. Kendi Deponuzu Oluşturun (Fork)
 1. Bu depoyu sağ üstteki **Fork** butonuna basarak kendi GitHub hesabınıza kopyalayın.
-2. Deponuzun **Settings > Actions > General** menüsüne giderek **Workflow permissions** kısmını **"Read and write permissions"** olarak ayarlayın ve kaydedin (GitHub Actions'ın listeyi güncelleyip kaydedebilmesi için gereklidir).
+2. Deponuzun **Settings > Actions > General** menüsüne giderek **Workflow permissions** kısmını **"Read and write permissions"** olarak ayarlayın ve kaydedin.
 
 ### 2. GitHub Actions'ı Tetikleyin
 - Deponuzun üst menüsündeki **Actions** sekmesine gelin.
-- Sol taraftan **"USOM API to Palo Alto EDL Converter"** (veya yml dosyasındaki adıyla) iş akışını seçin.
-- **Run workflow** butonuna basarak ilk çalıştırmayı manuel olarak başlatın.
-- İşlem tamamlandığında ana dizinde `usom_list.txt` dosyasının oluştuğunu göreceksiniz.
+- Sol taraftan iş akışını seçip **Run workflow** butonuna basarak ilk çalıştırmayı manuel olarak başlatın.
+- İşlem tamamlandığında ana dizinde kendi `usom_list.txt` dosyanızın oluştuğunu göreceksiniz. Dosyaya tıklayıp **Raw** butonuna basarak kendi güncel linkinizi alabilirsiniz.
 
 ---
 
 ## 🔗 Firewall Entegrasyon Rehberi
 
-### Ortak Adım: Raw Linkini Alın
-Deponuzda oluşan `usom_list.txt` dosyasına tıklayın ve sağ üstteki **Raw** butonuna basın. Tarayıcınızın adres satırındaki URL'yi kopyalayın. Linkiniz şuna benzeyecektir:
-`https://raw.githubusercontent.com/KULLANICI_ADINIZ/REPO_ADINIZ/main/usom_list.txt`
+*(Aşağıdaki adımlarda URL istenen yerlere, en üstte paylaşılan hazır linki veya kendi kopyaladığınız Raw linkini yapıştırabilirsiniz.)*
 
 ### 🛡️ Fortinet (FortiGate) Entegrasyonu
 1. FortiGate arayüzünde **Security Fabric > Fabric Connectors** (veya External Connectors) menüsüne gidin.
 2. **Create New** diyerek **Threat Feeds** altından **Domain Name** veya **IP Address** seçeneğini tıklayın.
 3. **Name:** `USOM_Zararli_Liste`
 4. **URL of external resource:** Kopyaladığınız Raw linkini yapıştırın.
-5. **Refresh Rate:** 60 veya 1440 (Günlük) dakika olarak belirleyin ve kaydedin.
+5. **Refresh Rate:** 1440 (Günlük) dakika olarak belirleyin ve kaydedin.
 6. **Policy & Objects > DNS Filter** (veya Web Filter) profillerinde bu listeyi `Block` olarak ayarlayın.
 
 ### 🛡️ Palo Alto Networks Entegrasyonu
@@ -47,7 +53,7 @@ Deponuzda oluşan `usom_list.txt` dosyasına tıklayın ve sağ üstteki **Raw**
 2. **Name:** `USOM_Zarli_Baglantilar`
 3. **Type:** `URL List` veya `Domain List` seçin.
 4. **Source:** Kopyaladığınız Raw linkini yapıştırın.
-5. **Repeat:** `Hourly` veya `Daily` olarak ayarlayıp kaydedin.
+5. **Repeat:** `Daily` olarak ayarlayıp kaydedin.
 6. **Policies > Security** kuralınızda `Destination` olarak bu listeyi seçip `Drop/Block` aksiyonu verin.
 
 ### 🛡️ Cisco (Firepower / FMC) Entegrasyonu
@@ -59,8 +65,9 @@ Deponuzda oluşan `usom_list.txt` dosyasına tıklayın ve sağ üstteki **Raw**
 ---
 
 ## 📊 Limitler ve Kontroller
-Her üreticinin donanım modeline göre (RAM ve CPU kapasitesi) dışarıdan alabileceği maksimum satır sayısı farklıdır:
+Her üreticinin donanım modeline göre dışarıdan alabileceği maksimum satır sayısı farklıdır:
 - **Palo Alto:** Giriş seviyesi modellerde toplam ~50.000 satır limiti vardır (`show system state | match max-edl` komutuyla kontrol edilebilir).
 - **FortiGate:** Cihaz modeline göre (Örn: 60F, 100F, 200F) External Block List (EBL) limitleri 100.000 ila milyonlarca kayıt arasında değişir. Cihaz limitlerinizi aşmamaya özen gösterin.
 
-
+## ⚖️ Lisans
+Bu proje [MIT Lisansı](LICENSE) altında açık kaynak olarak sunulmuştur. Ticari veya bireysel olarak serbestçe değiştirilebilir ve kullanılabilir.

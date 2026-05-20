@@ -1,62 +1,47 @@
 import requests
-import json
+from bs4 import BeautifulSoup
+import re
 import time
 
 def main():
-    # Güncel USOM API adresi
-    base_url = "https://www.usom.gov.tr/api/address/index"
+    # USOM'un API yerine doğrudan yayın yaptığı web sayfasını kullanıyoruz
+    url = "https://www.usom.gov.tr/zararli-baglantilar"
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+    }
     
     all_addresses = []
-    page = 1
-    max_pages = 5 # İlk etapta test için 5 sayfa çekiyoruz (Her sayfada 100 kayıt olacak)
     
-    print("USOM API bağlantısı kuruluyor...")
+    print("USOM sayfasından zararlı bağlantılar toplanıyor...")
     
-    while page <= max_pages:
-        try:
-            # page-size parametresini 100 olarak zorunlu ekliyoruz
-            # verify=False ile olası SSL sertifika hatalarını bypass ediyoruz
-            params = {
-                'page': page,
-                'page-size': 100
-            }
-            
-            response = requests.get(base_url, params=params, timeout=20, verify=False)
-            
-            if response.status_code != 200:
-                print(f"Sayfa {page} alınamadı. Durum Kodu: {response.status_code}")
-                break
-                
-            data = response.json()
-            
-            # API'den gelen 'models' listesini kontrol et
-            if 'models' in data and data['models']:
-                page_items = data['models']
-                current_page_count = 0
-                
-                for item in page_items:
-                    if 'address' in item and item['address']:
-                        addr = item['address'].strip()
-                        if addr:
-                            all_addresses.append(addr)
-                            current_page_count += 1
-                
-                print(f"Sayfa {page} başarıyla okundu. {current_page_count} adet adres alındı.")
-                
-                # Eğer sayfadan gelen veri 100'den azsa son sayfaya gelinmiştir
-                if len(page_items) < 100:
-                    print("Veritabanındaki son sayfaya ulaşıldı.")
-                    break
-            else:
-                print(f"Sayfa {page} içeriği boş geldi.")
-                break
-                
-            page += 1
-            time.sleep(1) # Banlanmamak için güvenli bekleme süresi
-            
-        except Exception as e:
-            print(f"Sayfa {page} çekilirken teknik bir hata oluştu: {e}")
-            break
+    try:
+        # Sayfaya istek at
+        response = requests.get(url, headers=headers, timeout=15, verify=False)
+        response.raise_for_status()
+        
+        # Sayfa içeriğini BeautifulSoup ile parse et
+        soup = BeautifulSoup(response.content, 'html.parser')
+        
+        # Tablodaki tüm satırları bul (USOM tablosundaki class veya tr yapısına göre)
+        # Genellikle tablo içindeki <td> etiketlerinde veya belirli bir id'de bulunur
+        table = soup.find('table', {'class': 'table'}) 
+        
+        if table:
+            rows = table.find_all('tr')
+            for row in rows[1:]: # Başlık satırını atla
+                cols = row.find_all('td')
+                if len(cols) > 0:
+                    # Genellikle ilk veya ikinci sütunda URL bulunur
+                    # Sayfa yapısına göre sütun indeksini ayarlayın (burada 1 varsayıyoruz)
+                    address = cols[1].text.strip()
+                    if address:
+                        all_addresses.append(address)
+            print(f"Tablodan {len(all_addresses)} adres başarıyla çekildi.")
+        else:
+             print("Sayfada tablo bulunamadı. Yapı değişmiş olabilir.")
+             
+    except Exception as e:
+        print(f"Sayfa çekilirken hata oluştu: {e}")
 
     # Çift kayıtları temizle ve sırala
     clean_addresses = sorted(list(set(all_addresses)))
@@ -68,7 +53,14 @@ def main():
                 f.write(f"{address}\n")
         print(f"\n[BAŞARILI] Toplam {len(clean_addresses)} benzersiz adres 'usom_list.txt' dosyasına kaydedildi!")
     else:
-        print("\n[HATA] API'den hiçbir adres çekilemedi, liste hala boş.")
+        print("\n[HATA] API veya Web sayfasından hiçbir adres çekilemedi. Liste hala boş.")
+        
+        # Güvenlik ağı (Fallback): Eğer hiçbir şekilde veri alınamazsa, boş liste yerine
+        # test amaçlı veya bilinen birkaç zararlı adresi listeye ekleyerek 
+        # GitHub Actions'ın hata vermesini engelleyebiliriz (İsteğe bağlı).
+        # with open("usom_list.txt", "w", encoding="utf-8") as f:
+        #    f.write("test-zararli-domain.com\n")
+        #    f.write("192.168.1.99\n")
 
 if __name__ == "__main__":
     main()

@@ -22,7 +22,7 @@ jobs:
         python-version: '3.x'
 
     - name: Kütüphaneleri Yükle
-      run: pip install requests beautifulsoup4
+      run: pip install requests urllib3
 
     - name: Scripti Çalıştır ve Listeyi Güncelle
       run: python update_list.py

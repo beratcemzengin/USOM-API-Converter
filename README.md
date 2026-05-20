@@ -57,4 +57,4 @@ Deponun güncel dosyaları kaydedebilmesi (push atabilmesi) için yazma izni ver
 ## 📊 Teknik Detaylar
 * **Limit Kontrolü:** 1 yıllık filtreleme, cihazlarınızın hafıza limitlerini (RAM/TCAM) aşmadan sadece "taze" tehditlere odaklanmanızı sağlar.
 * **Güncelleme:** Script her gün Türkiye saatiyle 06:00'da tetiklenir.
-* **Lisans:** [MIT](LICENSE)
+

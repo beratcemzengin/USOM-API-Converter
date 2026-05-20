@@ -1,6 +1,6 @@
 🛡️🚀USOM API to Palo Alto Networks EDL Converter 🛡️🚀
 
-[![USOM API to Palo Alto EDL Converter](https://github.com/KULLANICI_ADINIZ/REPO_ADINIZ/actions/workflows/usom_job.yml/badge.svg)](https://github.com/KULLANICI_ADINIZ/REPO_ADINIZ/actions/workflows/usom_job.yml)
+[🛡️[USOM API to Palo Alto EDL Converter](https://github.com/KULLANICI_ADINIZ/REPO_ADINIZ/actions/workflows/usom_job.yml/badge.svg)](https://github.com/KULLANICI_ADINIZ/REPO_ADINIZ/actions/workflows/usom_job.yml)
 
 Siber Güvenlik Başkanlığı'nın 177 sayılı Cumhurbaşkanlığı Kararnamesi ve 7545 sayılı Siber Güvenlik Kanunu uyarınca yaptığı duyuru doğrultusunda, **1 Haziran 2026** tarihi itibariyle USOM üzerindeki eski `.txt` formatındaki zararlı bağlantı listesi paylaşımları sona ermektedir. Veri erişim süreçleri tamamen yeni API servisleri (`www.siberguvenlik.gov.tr`) üzerinden yürütülecektir.
 

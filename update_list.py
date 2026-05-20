@@ -10,18 +10,14 @@ def main():
     base_url = "https://www.usom.gov.tr/api/address/index"
     all_addresses = []
     
-    # Bugünün tarihinden 365 gün (1 yıl) öncesini hesapla ve YYYY-MM-DD formatına çevir
+    # 1 yıl öncesini hesapla
     one_year_ago = (datetime.now() - timedelta(days=365)).strftime('%Y-%m-%d')
     
     print(f"USOM API bağlantısı kuruluyor...")
     print(f"FİLTRE AKTİF: Sadece {one_year_ago} tarihinden sonra eklenen GÜNCEL tehditler çekilecek.")
     
-    # 1. ADIM: API'ye bağlanıp filtrelenmiş verinin toplam sayfa sayısını öğreniyoruz
     try:
-        params = {
-            'page': 1,
-            'date_gte': one_year_ago # Tarih filtresini API'ye iletiyoruz
-        }
+        params = {'page': 1, 'date_gte': one_year_ago}
         first_req = requests.get(base_url, params=params, timeout=15, verify=False)
         if first_req.status_code == 200:
             total_pages = first_req.json().get('pageCount', 100)
@@ -29,19 +25,18 @@ def main():
         else:
             total_pages = 100 
     except Exception as e:
-        print(f"Başlangıç bağlantı hatası: {e}")
         total_pages = 100
 
-    # 2. ADIM: Maksimum 2000 sayfa (yaklaşık 40.000 IP/Domain) güvenlik sınırı
-    max_limit = min(total_pages, 2000)
+    # Palo Alto limitlerine yaklaşmak için sayfa limitini biraz daha esnetiyoruz
+    max_limit = min(total_pages, 4000)
     
-    # Bütün sayfaları tarayan dinamik döngü
-    for page in range(1, max_limit + 1):
+    page = 1
+    retry_count = 0
+    
+    # Tüm sayfaları taramak için while döngüsü (Hata alınca aynı sayfadan devam edebilmek için)
+    while page <= max_limit:
         try:
-            params = {
-                'page': page,
-                'date_gte': one_year_ago # Her sayfa isteğinde filtreyi tekrar gönderiyoruz
-            }
+            params = {'page': page, 'date_gte': one_year_ago}
             response = requests.get(base_url, params=params, timeout=15, verify=False)
             
             if response.status_code == 200:
@@ -49,28 +44,41 @@ def main():
                 models = data.get('models', [])
                 
                 if not models:
-                    break # Sayfalar bittiyse döngüden çık
+                    break 
                     
                 for item in models:
                     addr = item.get('url') 
                     if addr:
                         all_addresses.append(addr.strip())
                         
-                # Logların daha temiz görünmesi için her 10 sayfada bir ekrana bilgi yazdırıyoruz
-                if page % 10 == 0:
-                    print(f"[{page}/{max_limit}] sayfa tarandı. Şu ana kadar toplanan güncel adres: {len(all_addresses)}")
+                if page % 50 == 0:
+                    print(f"[{page}/{max_limit}] sayfa tarandı. Şu ana kadar toplanan adres: {len(all_addresses)}")
+                
+                # Başarılı olunca bir sonraki sayfaya geç, hata sayacını sıfırla
+                page += 1
+                retry_count = 0 
+                # WAF'ı kızdırmamak için bekleme süresini 1 saniyeye çıkardık
+                time.sleep(1.0) 
+                
+            # İŞTE KRİTİK NOKTA: WAF Bizi Engellerse (429 Hatası)
+            elif response.status_code == 429:
+                retry_count += 1
+                if retry_count > 3:
+                    print("Üst üste 3 kez 429 hatası alındı. Güvenlik için işlem sonlandırılıyor.")
+                    break
+                
+                print(f"[UYARI] USOM WAF Engeli (HTTP 429) - {retry_count}. kez denenecek. 30 saniye dinleniliyor...")
+                time.sleep(30) # 30 saniye bekle ve sayfa sayısını (page) artırmadan döngüyü tekrarla
+                
             else:
                 print(f"Sayfa {page} alınamadı. HTTP Status: {response.status_code}")
                 break
                 
-            # USOM WAF tarafından engellenmemek için çok kısa bir bekleme
-            time.sleep(0.3)
-            
         except Exception as e:
-            print(f"{page}. sayfa işlenirken kesinti yaşandı: {e}")
+            print(f"{page}. sayfa işlenirken hata oluştu: {e}")
             break
 
-    # 3. ADIM: Mükerrer kayıtları temizle ve txt dosyasına yaz
+    # Mükerrer kayıtları temizle
     clean_addresses = sorted(list(set(all_addresses)))
     
     if clean_addresses:

@@ -27,10 +27,12 @@ jobs:
     - name: Scripti Çalıştır ve Listeyi Güncelle
       run: python update_list.py
 
-    - name: Değişiklikleri GitHub'a Geri Yükle (Commit & Push)
+    - name: Değişiklikleri Git ile Pushla
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         git config --global user.name "GitHub Action"
         git config --global user.email "action@github.com"
-        git add usom_list.txt
-        # Eğer değişiklik yoksa hata vermemesi için kontrol ekliyoruz
-        git diff --quiet && git diff --staged --quiet || (git commit -m "Güncel USOM Listesi - $(date)" && git push)
+        git add usom_ip.txt usom_domain.txt
+        # Değişiklik varsa commit at ve pushla
+        git diff --quiet && git diff --staged --quiet || (git commit -m "Otomatik guncel liste - $(date)" && git push https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git HEAD:main)

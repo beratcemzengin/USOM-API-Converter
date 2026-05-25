@@ -1,6 +1,6 @@
 # USOM-API-Converter (Firewall Tehdit İstihbaratı Otomasyonu) 🛡️🚀
 
-[![USOM-API-Converter](https://github.com/beratcemzengin/USOM-API-Converter/actions/workflows/usom_job.yml/badge.svg)](https://github.com/beratcemzengin/USOM-API-Converter/actions/workflows/usom_job.yml)
+[![USOM-API-Converter](https://github.com/beratcemzengin/USOM-API-Converter/actions/workflows/main.yml/badge.svg)](https://github.com/beratcemzengin/USOM-API-Converter/actions/workflows/main.yml)
 
 > 💡 **Hızlı Kullanım (Hazır Listeler):**
 > Kendi GitHub altyapınızı kurmakla uğraşmak istemiyorsanız, bu deponun her gün otomatik ürettiği güncel listeleri doğrudan Firewall cihazlarınıza tanımlayabilirsiniz:
@@ -10,7 +10,7 @@
 
 ---
 
-Siber Güvenlik Başkanlığı'nın (SGB) API servisleri üzerinden sunduğu tehdit beslemesini; kurumsal güvenlik duvarlarının (Palo Alto, FortiGate, Cisco vb.) doğrudan tüketebileceği optimize edilmiş formatta sunan otomasyon projesidir.
+Bilgi Teknolojileri ve İletişim Kurumu (BTK) bünyesindeki Ulusal Siber Olaylara Müdahale Merkezi (USOM) API servisleri üzerinden sunduğu tehdit beslemesini; kurumsal güvenlik duvarlarının (Palo Alto, FortiGate, Cisco vb.) doğrudan tüketebileceği optimize edilmiş formatta sunan otomasyon projesidir.
 
 ## 🌟 Neler Yeni?
 * **Segmentasyon:** Tehditler artık IP (L3/L4) ve Domain (L7) olarak iki ayrı dosyada sunulur.

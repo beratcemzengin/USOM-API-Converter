@@ -12,7 +12,7 @@ def is_ip(address):
         return False
 
 def main():
-    base_url = "https://www.usom.gov.tr/api/address/index"
+    base_url = "https://siberguvenlik.gov.tr/api/address/index"
     ips = []
     domains = []
     
@@ -20,14 +20,23 @@ def main():
     one_year_ago = (datetime.now() - timedelta(days=365)).strftime('%Y-%m-%d')
     print(f"Baslatiliyor... Filtre: {one_year_ago} sonrasi.")
     
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+    }
+    
     page = 1
     while True:
         try:
             params = {'page': page, 'per-page': 1000, 'date_gte': one_year_ago}
-            response = requests.get(base_url, params=params, timeout=20, verify=True)
+            response = requests.get(base_url, params=params, headers=headers, timeout=20, verify=True)
             
             if response.status_code == 200:
-                data = response.json()
+                try:
+                    data = response.json()
+                except ValueError as json_err:
+                    print(f"Hata: Yanit JSON formatinda degil. Yanit icerigi:\n{response.text[:250]}")
+                    raise json_err
+                
                 models = data.get('models', [])
                 if not models:
                     break
